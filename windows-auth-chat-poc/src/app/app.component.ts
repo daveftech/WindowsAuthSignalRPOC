@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
 import { Message } from 'src/_models/message';
 
@@ -13,8 +13,10 @@ export class AppComponent {
   title = 'Windows Auth/SignalR Chat POC';
   messages: Message[] = [];
   showConnecting = false;
-  inputMessage: string;
-  chatMessageFormControl: FormControl;
+
+  messageForm: FormGroup;
+
+  constructor (private fb: FormBuilder) {}
 
   ngOnInit() {
     console.log('Initializting...');
@@ -36,7 +38,13 @@ export class AppComponent {
 
     this.startConnection();
 
-    this.chatMessageFormControl = new FormControl('');
+    this.createMessageForm();
+  }
+
+  createMessageForm() {
+    this.messageForm = this.fb.group({
+      message: ['']
+    });
   }
 
   startConnection() {
@@ -59,9 +67,19 @@ export class AppComponent {
     }, 5000);
   }
 
-  sendMessage(text: string) {
-    console.log('Sending message: ' + text);
-    this.hubConnection.invoke('SendMessage', 'User', this.chatMessageFormControl.value);
-    this.chatMessageFormControl.setValue('');
+  sendMessage() {
+    console.log('Sending message...');
+    if (this.messageForm.valid) {
+      console.log('messageForm was valid.  Continuing to send message.');
+      const messageFormObj = Object.assign({}, this.messageForm.value);
+
+      console.log(`Message to send: ${messageFormObj.message}`);
+      this.hubConnection.invoke('SendMessage', 'User', messageFormObj.message);
+
+      this.messageForm.reset();
+    } else {
+      console.log('messageForm was not valid');
+    }
+
   }
 }

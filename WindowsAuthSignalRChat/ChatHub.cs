@@ -7,6 +7,13 @@ namespace WindowsAuthSignalRChat
 {
     public class ChatHub : Hub
     {
+        public override async Task OnConnectedAsync()
+        {
+
+
+            await base.OnConnectedAsync();
+        }
+
         public async Task SendMessage(string name, string text)
         {
             var message = new ChatMessage

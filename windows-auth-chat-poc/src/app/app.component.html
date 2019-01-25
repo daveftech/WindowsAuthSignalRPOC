@@ -24,11 +24,13 @@
     </div>
   </div>
   <div class="row" id="message">
-    <div class="input-group">
-      <input type="text" class="form-control" placeholder="Enter message here" aria-label="Enter message here" id="messageInput" name="inputText"/>
-      <div class="input-group-append">
-        <button class="btn btn-primary" type="button" (onclick)="sendMessage()">Send</button>
+    <form [formGroup]="messageForm" (ngSubmit)="sendMessage()">
+      <div class="input-group">
+        <input class="form-control" placeholder="Enter message here" aria-label="Enter message here" formControlName="message"/>
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="submit">Send</button>
+        </div>
       </div>
-    </div>
+    </form>
   </div>
 </div>
