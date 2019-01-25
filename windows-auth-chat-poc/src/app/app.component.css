@@ -1,0 +1,31 @@
+#heading {
+  background-color: #333;
+  color: white;
+  padding: 10px 0 15px 0;
+}
+
+#chatHistory {
+  list-style-type: none;
+  text-align: left;
+  padding-top: 15px;
+  margin-bottom: 15px;
+  height: 285px;
+  overflow-y: scroll;
+}
+
+#chatHistory li {
+  padding-bottom: 15px;
+}
+
+#chatHistory li .name {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+#chatHistory li .time {
+  color: #999;
+}
+
+#chatHistory li .message {
+  padding-top: 5px;
+}
