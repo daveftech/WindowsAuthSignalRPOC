@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
-import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
-import { Message } from 'src/_models/message';
+import { HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from '@aspnet/signalr';
+import { Message } from './_models/message';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -16,11 +17,15 @@ export class AppComponent {
 
   messageForm: FormGroup;
 
-  constructor (private fb: FormBuilder) {}
+  constructor (private fb: FormBuilder, private httpClient: HttpClient) {}
 
   ngOnInit() {
     console.log('Initializting...');
-    this.hubConnection = new HubConnectionBuilder().withUrl('http://localhost:51723/chatHub').build();
+    this.hubConnection = new HubConnectionBuilder()
+      .withUrl('http://localhost:51723/chatHub', {
+        accessTokenFactory: () => this.getToken()
+      })
+      .build();
 
     this.hubConnection.on('ReceiveMessage', (incomingName: string, incomingTimestamp: string, incomingMessage: string) => {
       console.log(`Message received: ${incomingMessage}`);
@@ -81,5 +86,9 @@ export class AppComponent {
       console.log('messageForm was not valid');
     }
 
+  }
+
+  getToken(): Promise<string> {
+    return this.httpClient.get<string>('http://localhost:51723/').toPromise<string>();
   }
 }

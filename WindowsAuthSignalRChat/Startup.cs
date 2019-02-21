@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace WindowsAuthSignalRChat
@@ -11,7 +13,17 @@ namespace WindowsAuthSignalRChat
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+            services.AddMvc();
             services.AddSignalR();
+            services.AddSingleton<IUserIdProvider, ChatUserIdProvider>();
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x => 
+            {
+
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -29,6 +41,10 @@ namespace WindowsAuthSignalRChat
                     .AllowAnyHeader()
                     .AllowCredentials();
             });
+
+            app.UseAuthentication();
+
+            app.UseMvc();
 
             app.UseSignalR(routes =>
             {
