@@ -3,28 +3,45 @@ import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms'
 import { HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from '@aspnet/signalr';
 import { Message } from './_models/message';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from './_services/auth.service';
+
+import { ViewState } from './view-state';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent {
+
   private hubConnection: HubConnection;
   title = 'Windows Auth/SignalR Chat POC';
   messages: Message[] = [];
-  showConnecting = false;
+  viewState: ViewState;
 
   messageForm: FormGroup;
 
-  constructor (private fb: FormBuilder, private httpClient: HttpClient) {}
+  constructor (private fb: FormBuilder, private httpClient: HttpClient, private authService: AuthService) {}
 
+  // tslint:disable-next-line:use-life-cycle-interface
   ngOnInit() {
     console.log('Initializting...');
+
+    // Check that we're logged in.  If we aren't, then login
+    console.log('Logging in...');
+    if (!this.authService.loggedIn()) {
+      this.authService.login();
+
+      if (!this.authService.loggedIn()) {
+        console.log('Authentication failed');
+        this.authenticationFailed();
+        return;
+      }
+    }
+
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl('http://localhost:51723/chatHub', {
-        accessTokenFactory: () => this.getToken()
-      })
+      .withUrl('http://localhost:51723/chatHub', { accessTokenFactory: () => localStorage.getItem('token') })
       .build();
 
     this.hubConnection.on('ReceiveMessage', (incomingName: string, incomingTimestamp: string, incomingMessage: string) => {
@@ -54,19 +71,19 @@ export class AppComponent {
 
   startConnection() {
     console.log('Starting connection...');
-    this.showConnecting = true;
+    this.viewState = ViewState.Connecting;
     this.hubConnection
     .start()
     .then(() => {
       console.log('Connection started...');
-      this.showConnecting = false;
+      this.viewState = ViewState.Connected;
     })
     .catch(err => console.log('Error while establishing connection: ' + err));
   }
 
   onDisconnected() {
     console.log('Reconnecting in 5 seconds...');
-    this.showConnecting = true;
+    this.viewState = ViewState.Connecting;
     setTimeout(() => {
       this.startConnection();
     }, 5000);
@@ -88,7 +105,7 @@ export class AppComponent {
 
   }
 
-  getToken(): Promise<string> {
-    return this.httpClient.get<string>('http://localhost:51723/').toPromise<string>();
+  authenticationFailed() {
+    this.viewState = ViewState.Unauthorized;
   }
 }

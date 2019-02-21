@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using WindowsAuthSignalRChat.Models;
 
@@ -15,12 +16,14 @@ namespace WindowsAuthSignalRChat
             await base.OnConnectedAsync();
         }
 
-        //[Authorize]
-        public async Task SendMessage(string name, string text)
+        [Authorize]
+        public async Task SendMessage(string text)
         {
+            Debug.WriteLine($"Current User: {Context?.User?.Identity?.Name}");
+
             var message = new ChatMessage
             {
-                SenderName = name,
+                SenderName = Context?.User?.Identity?.Name,
                 Text = text,
                 SentAt = DateTimeOffset.UtcNow
             };

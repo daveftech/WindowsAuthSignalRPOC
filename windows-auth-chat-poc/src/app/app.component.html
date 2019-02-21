@@ -1,36 +1,44 @@
 <!--The content below is only a placeholder and can be replaced.-->
 <div class="container-fluid">
-  <div class="row" id="heading">
-    <h1>
-      Welcome!
-    </h1>
+  <div *ngIf="viewState == 0">
+    You are not authorized to connect to the chat
   </div>
-  <div class="row" id="content">
-    <div *ngIf="messages.length == 0">
-      <h3>No messages</h3>
-    </div>
-    <div *ngIf="messages.length > 0">
-      <ul id="chatHistory" *ngFor="let message of messages" >
-        <li>
-          <div>
-            <div class="name">{{message.senderName}}</div>
-            <div class="time">{{message.sentAt}}</div>
-          </div>
-          <div>
-            {{message.text}}
-          </div>
-        </li>
-      </ul>
-    </div>
+  <div *ngIf="viewState == 1">
+    Connecting...
   </div>
-  <div class="row" id="message">
-    <form [formGroup]="messageForm" (ngSubmit)="sendMessage()">
-      <div class="input-group">
-        <input class="form-control" placeholder="Enter message here" aria-label="Enter message here" formControlName="message"/>
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="submit">Send</button>
+  <div *ngIf="viewState == 2">
+    <div class="row" id="heading">
+        <h1>
+          Welcome!
+        </h1>
+      </div>
+      <div class="row" id="content">
+        <div *ngIf="messages.length == 0">
+          <h3>No messages</h3>
+        </div>
+        <div *ngIf="messages.length > 0">
+          <ul id="chatHistory" *ngFor="let message of messages" >
+            <li>
+              <div>
+                <div class="name">{{message.senderName}}</div>
+                <div class="time">{{message.sentAt}}</div>
+              </div>
+              <div>
+                {{message.text}}
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
-    </form>
+      <div class="row" id="message">
+        <form [formGroup]="messageForm" (ngSubmit)="sendMessage()">
+          <div class="input-group">
+            <input class="form-control" placeholder="Enter message here" aria-label="Enter message here" formControlName="message"/>
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="submit">Send</button>
+            </div>
+          </div>
+        </form>
+      </div>
   </div>
 </div>
